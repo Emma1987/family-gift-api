@@ -1,0 +1,47 @@
+services:
+    # PHP service with Apache for Symfony
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: family-gift-php
+        restart: unless-stopped
+        volumes:
+            - ./:/var/app/html  # Mount your Symfony project to the container
+        environment:
+            - APP_ENV=dev  # Set the environment variable for Symfony
+        ports:
+            - "8080:80"  # Map port 8080 on host to 80 in the container
+
+    # MySQL database service
+    database:
+        image: mysql:8.0
+        container_name: family-gift-database
+        environment:
+            MYSQL_DATABASE: app
+            MYSQL_PASSWORD: 5drk9KegN0K5r683p9Cm
+            MYSQL_USER: dbuser  # Default DB user is symfony
+            MYSQL_RANDOM_ROOT_PASSWORD: "yes"  # Enable random root password
+        volumes:
+            - database_data:/var/lib/mysql  # Persist MySQL data
+        ports:
+            - "3306:3306"  # Expose MySQL to the host on port 3306
+
+    # Test MySQL database service (optional for testing)
+    database-test:
+        image: mysql:8.0
+        container_name: family-gift-database-test
+        command: ["--max_connections=500"]
+        environment:
+            MYSQL_DATABASE: app_test  # Database for testing
+            MYSQL_PASSWORD: ZBJuW6rqhutYRyXziOyL  # Test database password
+            MYSQL_USER: dbusertest  # Test database user
+            MYSQL_RANDOM_ROOT_PASSWORD: "yes"  # Enable random root password for the test DB
+        volumes:
+            - database_data_test:/var/lib/mysql  # Persist test MySQL data
+        ports:
+            - "3307:3306"  # Expose test DB on a different port (3307)
+
+volumes:
+    database_data:  # Persist database data across restarts
+    database_data_test:  # Persist test database data
